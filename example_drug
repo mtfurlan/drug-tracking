@@ -2,19 +2,26 @@
 #	+-- time (hours 0-23)
 #	|	+-- time (minutes 0-59)
 #	|	|	+ day of week (1-7, 1 is monday)
+#	|	|	|   + day of month 
 #	|	|	|	+-- reminder count, -1 is infinite
 #	|	|	|	|	+-- reminder period (minutes)
 #	|	|	|	|	|	+-- note(optional)
 #	|	|	|	|	|	|
-#	TODO support */2 and such
-#s:	*/2	*	*	4	10	every 2 hours
-#s:	8	0	*	5	5	morning dose: every day at 8
-#s:	12	0	*	2	5	later dose: every day at 12
-#s:	12	0	3	-1	60	once a week wednesday at noon
-#s:	10	0	1-4	10	60	10:00 weekdays
-#s:	12	0	1-4	10	60	12:00 weekends
-s:	10	0	1-4	10	60	10:00 weekdays
-s:	12	0	1-4	10	60
+#
+
+
+# Example of job definition:
+#	.---------------- minute (0 - 59)
+#	|	.------------- hour (0 - 23)
+#	|	|	.---------- day of month (1 - 31)
+#	|	|	|	.------- month (1 - 12) OR jan,feb,mar,apr ...
+#	|	|	|	|	.---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+#	|	|	|	|	|	.---- reminder count, -1 is infinite
+#	|	|	|	|	|	|	.---- reminder period (minutes)
+#	|	|	|	|	|	|	|
+#	*	*	*	*	*	*	*
+s:	0	10	*	*	1-5	10	60
+s:	0	10	*	*	1,4	-1	42
 
 # we generally only care about the last line in the file for deciding when last
 # taken so whatever is fine

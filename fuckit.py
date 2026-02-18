@@ -1,7 +1,9 @@
 #!/usr/bin/env -S pipx run
 # /// script
 # dependencies = [
-#   "dykes"
+#   "dykes",
+#   "tzlocal",
+#   "cron-converter"
 # ]
 # ///
 from dataclasses import dataclass
@@ -10,18 +12,17 @@ from typing import Annotated
 import dykes
 import datetime
 import re
+from cron_converter import Cron
+from tzlocal import get_localzone
+
+
 
 @dataclass
 class Schedule:
-    h
-    m
-    d
+    cron: Cron
     reminderCount: int
     reminderPeriod: int
-    notes: str | None = None
 
-    def __post_init__(self):
-        self.h = "foobar"
 @dataclass
 class Parsed:
     schedules: [Schedule]
@@ -35,9 +36,12 @@ def parseSchedules(f: str) -> Parsed:
     with open(f) as schedule:
         for line in schedule:
             line = line.rstrip()
-            if re.match(r"^s:", line):
-                _, h, m, d, reminderCount, reminderPeriod, *note = re.split(r"\s+", line)
-                schedules.append(Schedule(h, m, d, reminderCount, reminderPeriod, notes=" ".join(note)))
+            res = re.match(r"^s:\s+((?:(?:\d+(?:,\d+)*|(?:\d+(?:\/|-)\d+)|\*(?:\/\d+)?)\s*){5})\s+(-?\d+)\s+(\d+)$", line)
+            if(res):
+                cron = res.group(1)
+                reminderCount = res.group(2)
+                reminderPeriod = res.group(3)
+                schedules.append(Schedule(Cron(cron), reminderCount, reminderPeriod))
             elif re.match(r"^={4,}$", line):
                 for line in schedule:
                     res = re.match(r"^\[([ x])\] ((?:\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?)(?:Z|[\+-]\d{2}:\d{2})?)(?: (.*))?", line)
@@ -60,4 +64,10 @@ if __name__ == "__main__":
     args = dykes.parse_args(DrugReminderArgs)
 
     parsed = parseSchedules(args.drugfile)
-    print(parsed)
+
+    reference = datetime.datetime.now(tz=get_localzone())
+    nowSchedule = parsed.schedules[0].cron.schedule(reference)
+    lastSchedule = parsed.schedules[0].cron.schedule(parsed.lastEntry)
+
+    print(f"last from now: {nowSchedule.prev().isoformat(" ", "seconds")}")
+    print(f"next from last: {lastSchedule.next().isoformat(" ", "seconds")}")
