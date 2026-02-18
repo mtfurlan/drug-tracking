@@ -40,12 +40,16 @@ renderDateAndTimeAgo () {
 }
 
 
-getMostRecentDate() {
+# hours
+# minutes
+# day of week
+# now (optional) unix
+calculateMostRecentSchedule() {
     h=$1
     m=$2
     d=$3
     now=$(nowOptional "$4")
-    #msg "getting most recent dose for $h $m $d at $now"
+    msg "getting most recent dose for $h $m $d at $now"
     #if [[ "$d" =~ ^[0-9]+-[0-9]+$ ]]; then
     #    low=${BASH_REMATCH[1]}
     #    high=${BASH_REMATCH[1]}
@@ -53,10 +57,10 @@ getMostRecentDate() {
     #    #if ((number >= 2 && number <= 5)); then
     #fi
     if [[ "$d" == "*" ]]; then
-        lastSchedule=$(date -d "$h:$m $(date +%Z)" +%s)
+        lastSchedule=$(date -d "TZ=\"$(date +%z)\" $(date -d @"$now" +%F) $h:$m" +%s)
         if (( lastSchedule > now )); then
             # in future, use yesterday
-            lastSchedule=$(date -d "$h:$m  $(date +%Z) - 1 day" +%s)
+            lastSchedule=$(date -d "$(date -d "@$lastSchedule") - 1 day" +%s)
         fi
     fi
     echo "$lastSchedule"

@@ -37,7 +37,7 @@ while true ; do
 done
 
 drug=${1:-}
-if [ -z "$drug" ]; then
+if [ -f "$drug" ]; then
     help "need to pass in schedule file as arg 1"
 fi
 shift

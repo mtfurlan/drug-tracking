@@ -16,8 +16,6 @@
 s:	10	0	1-4	10	60	10:00 weekdays
 s:	12	0	1-4	10	60
 
-# enabled defaults to true
-enabled: false
 # we generally only care about the last line in the file for deciding when last
 # taken so whatever is fine
 ==================
